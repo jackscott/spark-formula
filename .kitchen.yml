@@ -1,0 +1,33 @@
+---
+driver:
+  name: vagrant
+  network:
+    - ["private_network", { ip: "192.168.55.55"}]
+
+provisioner:
+  name: salt_solo
+  omnibus_cachier: true
+  formula: spark
+  pillars-from-files:
+    spark.sls: pillar.example
+  pillars:
+    top.sls:
+      base:
+        "*":
+          - spark
+  grains:
+    roles:
+      - spark-worker
+      - spark-master
+  state_top:
+    base:
+      "*":
+        - spark
+        - spark.testing
+        - spark.debug
+
+platforms:
+  - name: ubuntu-16.04
+
+suites:
+  - name: default

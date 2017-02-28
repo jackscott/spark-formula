@@ -1,0 +1,14 @@
+{% from "spark/defaults.yaml" import lookup_map with context %}
+{% set spark = salt['grains.filter_by'](lookup_map, merge=salt['pillar.get']('spark:lookup', salt['grains.get']('spark:lookup', {}), merge=True), base='default') %}
+
+{% with %}
+{% set with_hadoop = spark.with_hadoop|default(True) %}
+{% do spark.update({
+  'real_root': "%s/spark/%s"|format(spark.prefix, spark.version),
+  'alt_root': "%s/spark"|format(spark.prefix),
+  'bin_dir': '%s/spark/bin'|format(spark.prefix)
+
+}) %}
+
+
+{% endwith %}
