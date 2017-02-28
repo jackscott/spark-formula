@@ -1,0 +1,88 @@
+{% load_yaml as lookup_map %}
+default:
+  service: spark-worker
+  prefix: /usr/local
+  config_dir: /etc/spark
+  log_dir: /var/log/spark
+  version: "2.1.0"
+  with_hadoop: true
+Debian: {}
+RedHat: {}
+{% endload %}
+
+{% load_yaml as versions %}
+with_hadoop:
+  "2.1.0":
+    url: "http://apache.osuosl.org/spark/spark-2.1.0/spark-2.1.0-bin-hadoop2.7.tgz"
+    hash: "sha256=a9cfb4677d76e5ca23b1b8eb94efc2d0edca00c7d97a164d12b4bfea271bdaef"
+without_hadoop:
+  "2.1.0":
+    url: "http://www.apache.org/dist/spark/spark-2.1.0/spark-2.1.0-bin-without-hadoop.tgz"
+    hash: ""
+{% endload %}
+
+# http://spark.apache.org/docs/latest/configuration.html#spark-properties
+{% load_yaml as config %}
+master: ~
+extraListeners: ~
+logConf: false
+  
+local:
+  dir: /tmp
+
+app:
+  name: super-cool-app
+
+driver:
+  cores: 1
+  maxResultSize: 1g
+  memory: 1g
+  
+executor:
+  memory: 1g
+  logs:
+    rolling:
+      maxRetainedFiles: ~
+      enableCompression: false
+      maxSize: ~
+      strategy: ~
+      time.interval: daily
+      userClassPathFirst: false
+
+python:
+  worker:
+    memory: 512m
+    reuse: true
+    
+reducer:
+  maxSizeInFlight: 48m
+
+shuffle:
+  compress: true
+  file:
+    buffer: 32k
+
+eventLog:
+  compress: false
+  dir: file:///tmp/spark-events
+  enabled: false
+
+ui:
+  enabled: true
+  killEnabled: true
+  port: 4040
+  retainedJobs: 1000
+  retainedStages: 1000
+  retainedTasks: 100000
+  reverseProxy: false
+
+worker:
+  ui:
+    retainedExecutors: 1000
+    retainedDrivers: 1000
+    retainedExecutions: 1000
+    retainedDeadExecutors: 100
+
+
+    
+{% endload %}
