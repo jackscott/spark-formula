@@ -1,7 +1,7 @@
 spark:
   lookup:
     version: '2.1.0'
-    with_hadoop: true
+    with_hadoop: false
     prefix: /opt
     service: spark-worker
     

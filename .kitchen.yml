@@ -23,7 +23,6 @@ provisioner:
     base:
       "*":
         - spark
-        - spark.testing
         - spark.debug
 
 platforms:
