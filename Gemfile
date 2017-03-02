@@ -1,4 +1,3 @@
-ruby '2.2.2'
 source "https://rubygems.org"
 
 gem "test-kitchen", "> 1.2.1"

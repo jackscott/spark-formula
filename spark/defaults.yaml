@@ -1,11 +1,15 @@
 {% load_yaml as lookup_map %}
 default:
   service: spark-worker
+  user: spark
   prefix: /usr/local
   config_dir: /etc/spark
   log_dir: /var/log/spark
   version: "2.1.0"
+  hadoop_version: "2.7"
   with_hadoop: true
+  archive_url: "http://www.apache.org/dist/spark/spark-%(version)s"
+  archive_type: "tgz"
 Debian: {}
 RedHat: {}
 {% endload %}
@@ -13,12 +17,12 @@ RedHat: {}
 {% load_yaml as versions %}
 with_hadoop:
   "2.1.0":
-    url: "http://apache.osuosl.org/spark/spark-2.1.0/spark-2.1.0-bin-hadoop2.7.tgz"
-    hash: "sha256=a9cfb4677d76e5ca23b1b8eb94efc2d0edca00c7d97a164d12b4bfea271bdaef"
+    name: "spark-%(version)s-bin-hadoop%(hadoop_version)s"
+    hash: "sha256=0834c775f38473f67cb122e0ec21074f800ced50c1ff1b9e37e222a0069dc5c7"
 without_hadoop:
   "2.1.0":
-    url: "http://www.apache.org/dist/spark/spark-2.1.0/spark-2.1.0-bin-without-hadoop.tgz"
-    hash: ""
+    name: "spark-%(version)s-bin-without-hadoop"
+    hash: "sha256=3ca4ecb0eb9a00de5099cc2564ed957433a2d15d9d645a60470324621853c5ae"
 {% endload %}
 
 # http://spark.apache.org/docs/latest/configuration.html#spark-properties

@@ -1,13 +1,36 @@
-{% from "spark/defaults.yaml" import lookup_map with context %}
-{% set spark = salt['grains.filter_by'](lookup_map, merge=salt['pillar.get']('spark:lookup', salt['grains.get']('spark:lookup', {}), merge=True), base='default') %}
+{% from "spark/defaults.yaml" import lookup_map as lmap,versions as vmap,config as cmap  with context %}
+
+{% set spark = salt['grains.filter_by'](lmap, merge=salt['pillar.get']('spark:lookup', salt['grains.get']('spark:lookup', {}), merge=True), base='default') %}
 
 {% with %}
-{% set with_hadoop = spark.with_hadoop|default(True) %}
-{% do spark.update({
-  'real_root': "%s/spark/%s"|format(spark.prefix, spark.version),
-  'alt_root': "%s/spark"|format(spark.prefix),
-  'bin_dir': '%s/spark/bin'|format(spark.prefix)
 
+{% if spark.with_hadoop == True %}
+  {% set versions = vmap["with_hadoop"] %}
+  {% set _name = versions[spark.version]["name"] %}
+  {% set _hash = versions[spark.version]["hash"]%}
+{% else %}
+  {% set versions = vmap["without_hadoop"] %}
+  {% set _name = versions[spark.version]["name"] %}
+  {% set _hash = versions[spark.version]["hash"]%}  
+{% endif %}
+
+{% if versions is defined and spark.version in versions.keys() %}
+  {% set archive_name = versions[spark.version]['name'] %}
+{% else %}
+  {% set archive_name = "spark-%s-bin-without-hadoop"|format(spark.version) %}
+  {% set _hash = "" %}
+{% endif %}
+
+{% set archive_name = archive_name % spark %}
+{% set url = spark.archive_url % spark %}
+{% set real_root = "%s/spark/%s"|format(spark.prefix, archive_name) %}
+{% do spark.update({
+  'real_root': real_root,
+  'alt_root': "%s/spark"|format(spark.prefix),
+  'bin_dir': '%s/bin'|format(real_root),
+  "archive_name": archive_name,
+  "archive_url": "%s/%s.%s"|format(url, archive_name, spark.archive_type),
+  "archive_hash": _hash
 }) %}
 
 

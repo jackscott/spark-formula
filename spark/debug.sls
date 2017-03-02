@@ -1,9 +1,9 @@
-{% from "spark/map.jinja" import config with context %}
+{% from "spark/map.jinja" import spark with context %}
 
 spark-debugin:
   file.managed:
     - name: /tmp/spark-formula.log
     - contents: |
-        {% for k,v in config.items() %}
+        {% for k,v in spark.items() %}
         {{ k }} => {{ v }}
         {% endfor %}
