@@ -8,8 +8,25 @@ default:
   version: "2.1.0"
   hadoop_version: "2.7"
   with_hadoop: true
-  archive_url: "http://www.apache.org/dist/spark/spark-%(version)s"
+  archive_url: "http://apache.cs.utah.edu/spark/spark-%(version)s"
   archive_type: "tgz"
+  # used for minion targeting and master discovery
+  worker_role: 'spark-worker'
+  master_role: 'spark-master'
+  master_port: 7077
+  master_ui_port: 8080
+  master_opts: []
+  local_dirs: /tmp/spark/scratch
+  
+  worker_cores: 0 # all cores
+  worker_memory: 2g
+  worker_instances: 1
+  worker_webui_port: 8081
+  worker_dir: SPARK_HOME/work
+  worker_opts: []
+  daemon_memory: 1g
+  daemon_java_opts: []
+  public_dns: ~
 Debian: {}
 RedHat: {}
 {% endload %}
@@ -25,68 +42,3 @@ without_hadoop:
     hash: "sha256=3ca4ecb0eb9a00de5099cc2564ed957433a2d15d9d645a60470324621853c5ae"
 {% endload %}
 
-# http://spark.apache.org/docs/latest/configuration.html#spark-properties
-{% load_yaml as config %}
-master: ~
-extraListeners: ~
-logConf: false
-  
-local:
-  dir: /tmp
-
-app:
-  name: super-cool-app
-
-driver:
-  cores: 1
-  maxResultSize: 1g
-  memory: 1g
-  
-executor:
-  memory: 1g
-  logs:
-    rolling:
-      maxRetainedFiles: ~
-      enableCompression: false
-      maxSize: ~
-      strategy: ~
-      time.interval: daily
-      userClassPathFirst: false
-
-python:
-  worker:
-    memory: 512m
-    reuse: true
-    
-reducer:
-  maxSizeInFlight: 48m
-
-shuffle:
-  compress: true
-  file:
-    buffer: 32k
-
-eventLog:
-  compress: false
-  dir: file:///tmp/spark-events
-  enabled: false
-
-ui:
-  enabled: true
-  killEnabled: true
-  port: 4040
-  retainedJobs: 1000
-  retainedStages: 1000
-  retainedTasks: 100000
-  reverseProxy: false
-
-worker:
-  ui:
-    retainedExecutors: 1000
-    retainedDrivers: 1000
-    retainedExecutions: 1000
-    retainedDeadExecutors: 100
-
-
-    
-{% endload %}
