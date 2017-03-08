@@ -2,7 +2,7 @@
 {% from "spark/map.jinja" import spark with context %}
 
 {% if spark.master_role in grains.roles  %}
-SPARK_MASTER_HOST={{ spark.master_host|default('127.0.0.1')}}
+SPARK_MASTER_HOST={{ spark.master_host|default(grains.get('hostname')) }}
 SPARK_MASTER_PORT={{ spark.master_port }}
 {% endif %}
 

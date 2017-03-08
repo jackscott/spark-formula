@@ -32,7 +32,6 @@ spark-cache-archive:
 spark-extract-archive:
   file.directory:
     - names:
-        - {{ spark.prefix }}/spark
         - {{ spark.log_dir }}
         - {{ spark.config_dir }}
         - {{ spark.work_dir }}
@@ -41,6 +40,7 @@ spark-extract-archive:
     - group: {{ spark.user }}
     - mode: 755
     - makedirs: true
+      
   archive.extracted:
     - name: {{ spark.alt_root }}
     - source:
@@ -49,10 +49,11 @@ spark-extract-archive:
         - file:///tmp/{{ archive_name }}
     - user: {{ spark.user }}
     - group: {{ spark.user }}
-    - if_missing: {{ spark.real_root }}
-    - required:
-        - file: spark-extract-archive
-        - user: spark-preflight
+    - if_missing: {{ spark.alt_root }}
+    - archive_format: tar
+
+
+spark-update-path:
   alternatives.install:
     - name: spark-home-link
     - link: {{ spark.alt_root }}
@@ -60,10 +61,9 @@ spark-extract-archive:
     - priority: 30
     - require:
         - archive: spark-extract-archive
-
-spark-update-path:
+  
   file.managed:
-    - name: /etc/profile.d/apache-spark.sh
+    - name: /etc/profile.d/spark.sh
     - source: salt://spark/files/profile.sh
     - template: jinja
     - user: root

@@ -1,13 +1,13 @@
 {% from "spark/map.jinja" import spark with context %}
 
-include:
+import:
   - spark
   - spark.debug
   
-{% if spark.master_role in grains.roles %}
-spark-master-defaults:
+{% if spark.worker_role in grains.roles %}
+spark-worker-defaults:
   file.managed:
-    - name: {{ "%s/%s"|format(spark.init_overrides, spark.master_service) }}
+    - name: {{ "%s/%s"|format(spark.init_overrides, spark.worker_service) }}
     - source:
         - salt://files/systemd.defaults.jinja
         - salt://spark/files/systemd.defaults.jinja
@@ -16,11 +16,11 @@ spark-master-defaults:
     - group: root
     - mode: 644
     - context:
-        filetype: master
-
-spark-master-service:
+        filetype: worker
+        
+spark-worker-service:
   file.managed:
-    - name: {{ "%s/%s.service"|format(spark.init_scripts, spark.master_service)}}
+    - name: {{ "%s/%s.service"|format(spark.init_scripts, spark.worker_service)}}
     - source: salt://spark/files/systemd.service.jinja
     - template: jinja
     - user: root
@@ -29,14 +29,14 @@ spark-master-service:
     - context:
         user: {{ spark.user }}
         spark_home: {{ spark.real_root }}
-        service_type: master
-        service_name: {{ spark.master_service }}
-        environment_file: {{ "%s/%s"|format(spark.init_overrides, spark.master_service) }}
+        service_type: worker
+        service_name: {{ spark.worker_service }}
+        environment_file: {{ "%s/%s"|format(spark.init_overrides, spark.worker_service) }}
   service.enabled:
-    - name: {{ spark.master_service }}
+    - name: {{ spark.worker_service }}
     - enable: true
     - init_delay: 10
     - watch:
-        - file: spark-master-service
-        - file: spark-master-defaults
+        - file: spark-worker-service
+        - file: spark-worker-defaults
 {% endif %}
