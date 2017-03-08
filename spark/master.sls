@@ -32,7 +32,7 @@ spark-master-service:
         service_type: master
         service_name: {{ spark.master_service }}
         environment_file: {{ "%s/%s"|format(spark.init_overrides, spark.master_service) }}
-  service.enabled:
+  service.running:
     - name: {{ spark.master_service }}
     - enable: true
     - init_delay: 10
