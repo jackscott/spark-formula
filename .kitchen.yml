@@ -23,9 +23,9 @@ provisioner:
     base:
       "*":
         - spark
-        - spark.master
         - spark.debug
-
+        - spark.master
+        - spark.worker
 platforms:
   - name: ubuntu-16.04
 
