@@ -75,7 +75,6 @@ spark-update-configs:
     - name: {{ spark.config_dir }}/spark-env.sh
     - source:
         - salt://spark/files/spark-env_sh.jinja
-        - salt://files/spark-env_sh.jinja
         # fallback to the default (empty) from the distribution
         - file://{{ spark.real_root }}/conf/spark-env.sh.template
     - template: jinja
