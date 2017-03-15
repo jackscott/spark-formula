@@ -5,12 +5,11 @@ include:
   - spark.debug
   
 {% if spark.master_role in grains.roles %}
-spark-master-defaults:
+{% with srv = spark.master_service %}
+{{ srv }}-defaults:
   file.managed:
     - name: {{ "%s/%s"|format(spark.init_overrides, spark.master_service) }}
-    - source:
-        - salt://files/systemd.defaults.jinja
-        - salt://spark/files/systemd.defaults.jinja
+    - source: salt://spark/files/systemd.defaults.jinja
     - template: jinja
     - user: root
     - group: root
@@ -18,7 +17,7 @@ spark-master-defaults:
     - context:
         filetype: master
 
-spark-master-service:
+{{ srv }}-service:
   file.managed:
     - name: {{ "%s/%s.service"|format(spark.init_scripts, spark.master_service)}}
     - source: salt://spark/files/systemd.service.jinja
@@ -33,10 +32,11 @@ spark-master-service:
         service_name: {{ spark.master_service }}
         environment_file: {{ "%s/%s"|format(spark.init_overrides, spark.master_service) }}
   service.running:
-    - name: {{ spark.master_service }}
+    - name: {{ srv }}
     - enable: true
     - init_delay: 10
     - watch:
-        - file: spark-master-service
-        - file: spark-master-defaults
+        - file: {{ srv }}-service
+        - file: {{ srv }}-defaults
+{% endwith %}
 {% endif %}

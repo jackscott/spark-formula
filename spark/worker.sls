@@ -1,12 +1,10 @@
 {% from "spark/map.jinja" import spark with context %}
 
 {% if spark.worker_role in grains.roles %}
-spark-worker-defaults:
+{{ spark.worker_service }}-defaults:
   file.managed:
     - name: {{ "%s/%s"|format(spark.init_overrides, spark.worker_service) }}
-    - source:
-        - salt://files/systemd.defaults.jinja
-        - salt://spark/files/systemd.defaults.jinja
+    - source: salt://spark/files/systemd.defaults.jinja
     - template: jinja
     - user: root
     - group: root
@@ -14,7 +12,7 @@ spark-worker-defaults:
     - context:
         filetype: worker
 
-spark-worker-service:
+{{ spark.worker_service }}-service:
   file.managed:
     - name: {{ "%s/%s.service"|format(spark.init_scripts, spark.worker_service)}}
     - source: salt://spark/files/systemd.service.jinja
@@ -29,7 +27,7 @@ spark-worker-service:
         service_name: {{ spark.worker_service }}
         environment_file: {{ "%s/%s"|format(spark.init_overrides, spark.worker_service) }}
 
-{{ spark.worker_service }}-service:
+{{ spark.worker_service }}-enabled:
   service.running:
     - name: {{ spark.worker_service }}
     - enable: true
