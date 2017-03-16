@@ -1,4 +1,4 @@
-{% from "spark/defaults.yaml" import lookup_map as lmap,versions as vmap,config as cmap  with context %}
+{% from "spark/defaults.yaml" import lookup_map as lmap,versions as vmap  with context %}
 
 {% set spark = salt['grains.filter_by'](lmap, merge=salt['pillar.get']('spark:lookup', salt['grains.get']('spark:lookup', {}), merge=True), base='default') %}
 
@@ -23,7 +23,8 @@
 
 {% set archive_name = archive_name % spark %}
 {% set url = spark.archive_url % spark %}
-{% set real_root = "%s/spark/%s"|format(spark.prefix, archive_name) %}
+{% set real_root = "%s/%s"|format(spark.prefix, archive_name) %}
+
 {% do spark.update({
   'real_root': real_root,
   'alt_root': "%s/spark"|format(spark.prefix),
@@ -32,6 +33,4 @@
   "archive_url": "%s/%s.%s"|format(url, archive_name, spark.archive_type),
   "archive_hash": _hash
 }) %}
-
-
 {% endwith %}

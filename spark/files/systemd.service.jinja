@@ -8,7 +8,7 @@ After=network-online.target
 User={{ user }}
 Type=forking
 EnvironmentFile=-{{ environment_file }}
-ExecStart={{ spark_home }}/sbin/start-{{ service_type|lower }}.sh
+ExecStart={{ spark_home }}/sbin/start-{{ service_type|lower }}.sh{% if service_type == 'slave' %} $SPARK_MASTER_HOST{% endif %}
 ExecStop={{ spark_home }}/sbin/stop-{{ service_type|lower }}.sh
 TimeoutSec=30
 Restart= on-failure

@@ -23,7 +23,7 @@
     - context:
         user: {{ spark.user }}
         spark_home: {{ spark.real_root }}
-        service_type: worker
+        service_type: slave
         service_name: {{ spark.worker_service }}
         environment_file: {{ "%s/%s"|format(spark.init_overrides, spark.worker_service) }}
 
