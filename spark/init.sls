@@ -42,7 +42,7 @@ spark-extract-archive:
     - makedirs: true
       
   archive.extracted:
-    - name: {{ spark.alt_root }}
+    - name: {{ spark.prefix }}
     - source:
         - file://{{ archive_name }}
         - file://files/{{ archive_name }}
@@ -58,10 +58,11 @@ spark-update-path:
     - name: spark-home-link
     - link: {{ spark.alt_root }}
     - path: {{ spark.real_root }}
-    - priority: 30
+    - priority: 999
     - require:
         - archive: spark-extract-archive
-  
+
+spark-setup-profile:
   file.managed:
     - name: /etc/profile.d/spark.sh
     - source: salt://spark/files/profile.sh
@@ -80,4 +81,15 @@ spark-update-configs:
     - template: jinja
     - user: {{ spark.user }}
     - group: {{ spark.user }}
-    - mode: 755
+    - mode: 644
+
+spark-logging:
+  file.managed:
+    - name: {{ spark.config_dir }}/log4j.properties
+    - source:
+        - salt://spark/files/log4j-properties.jinja
+        - file://{{ spark.real_root }}/conf/log4j.properties.template
+    - template: jinja
+    - user: {{ spark.user }}
+    - group: {{ spark.user }}
+    - mode: 644

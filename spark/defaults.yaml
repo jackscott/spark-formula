@@ -3,7 +3,7 @@ default:
   worker_service: 'spark-worker'
   master_service: 'spark-master'
   user: spark
-  prefix: /usr/local
+  prefix: /usr/local/lib
   config_dir: /etc/spark
   log_dir: /var/log/spark
   work_dir: /tmp/spark
@@ -19,6 +19,7 @@ default:
   worker_role: 'spark-worker'
   master_role: 'spark-master'
   
+  master_host: ~
   master_port: 7077
   master_ui_port: 8080
   master_opts: []
@@ -65,31 +66,3 @@ without_hadoop:
     hash: "sha256=3ca4ecb0eb9a00de5099cc2564ed957433a2d15d9d645a60470324621853c5ae"
 {% endload %}
 
-
-# http://spark.apache.org/docs/latest/configuration.html#spark-properties
-{% load_yaml as service_config %}
-master:
-  host: localhost
-  port: 8080
-  webui_port: 8081
-  opts: []
-  
-worker:
-  cores: ~
-  memory: ~
-  port: ~
-  webui_port: ~
-  instances: 1
-  opts: []
-
-other:
-  daemon:
-    memory: 1g
-    java_opts: []
-  history_opts: []
-  shuffle_opts: []
-  
-
-
-  
-{% endload %}
