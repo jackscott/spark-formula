@@ -31,6 +31,7 @@
   'bin_dir': '%s/bin'|format(real_root),
   "archive_name": archive_name,
   "archive_url": "%s/%s.%s"|format(url, archive_name, spark.archive_type),
-  "archive_hash": _hash
+  "archive_hash": _hash,
+  "master_uri": "spark://%s:%s"|format(spark.master_host, spark.master_port)
 }) %}
 {% endwith %}
