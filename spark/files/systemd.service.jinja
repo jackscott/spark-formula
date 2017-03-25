@@ -1,14 +1,20 @@
+{% from "spark/map.jinja" import spark with context %}
 [Unit]
 Description=Apache Spark {{ service_type|capitalize }}
 After=network.target
 After=systemd-user-sessions.service
 After=network-online.target
- 
+
+{% set params = ["--properties-file %s/spark-defaults.conf"|format(spark.config_dir),] %}
+{%- if service_type == 'slave' %}
+{% do params.append(spark.master_uri)  %}
+{% endif %}
+
 [Service]
 User={{ user }}
 Type=forking
 EnvironmentFile=-{{ environment_file }}
-ExecStart={{ spark_home }}/sbin/start-{{ service_type|lower }}.sh{% if service_type == 'slave' %} $SPARK_MASTER_HOST{% endif %}
+ExecStart={{ spark_home }}/sbin/start-{{ service_type|lower }}.sh {{ " ".join(params) }}
 ExecStop={{ spark_home }}/sbin/stop-{{ service_type|lower }}.sh
 TimeoutSec=30
 Restart= on-failure

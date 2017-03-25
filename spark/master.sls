@@ -6,6 +6,18 @@ include:
   
 {% if spark.master_role in grains.roles %}
 {% with srv = spark.master_service %}
+{{ srv }}-properties-file:
+  file.managed:
+    - name: {{ "%s/spark-defaults.conf"|format(spark.config_dir) }}
+    - template: jinja
+    - user: root
+    - group: root
+    - mode: 644
+    - source:
+        - salt://spark/files/spark-defaults-conf.jinja
+        - salt://spark/files/spark-defaults.conf.template
+        - {{ spark.real_root }}/conf/spark-defaults.conf.template
+
 {{ srv }}-defaults:
   file.managed:
     - name: {{ "%s/%s"|format(spark.init_overrides, spark.master_service) }}
