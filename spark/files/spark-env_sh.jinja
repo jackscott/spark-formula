@@ -9,6 +9,7 @@ SPARK_MASTER_HOST={{ spark.master_host|default('')  }}
 SPARK_MASTER_PORT={{ spark.master_port }}
 
 {% if spark.worker_role in grains.roles  %}
+SPARK_WORKER_DIR={{ spark.work_dir }}
 SPARK_WORKER_CORES={{ spark.worker_cores }}
 SPARK_WORKER_MEMORY={{ spark.worker_memory }}
 SPARK_WORKER_INSTANCES={{ spark.worker_instances }}
