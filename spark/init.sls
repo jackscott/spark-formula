@@ -27,7 +27,7 @@ spark-cache-archive:
     - user: root
     - group: root
     - unless:
-        - test -x pyspark 
+        - test -f {{ "/tmp/%s"|format(archive_name) }}
 
 spark-extract-archive:
   file.directory:
@@ -44,14 +44,15 @@ spark-extract-archive:
   archive.extracted:
     - name: {{ spark.prefix }}
     - source:
-        - file://{{ archive_name }}
-        - file://files/{{ archive_name }}
         - file:///tmp/{{ archive_name }}
+        - {{ spark.archive_url }}
     - user: {{ spark.user }}
     - group: {{ spark.user }}
     - if_missing: {{ spark.alt_root }}
     - archive_format: tar
-
+    - require:
+        - file: spark-cache-archive
+          
 
 spark-update-path:
   alternatives.install:
