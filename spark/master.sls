@@ -13,6 +13,8 @@ include:
     - user: root
     - group: root
     - mode: 644
+    - force: true
+    - replace: true
     - source:
         - salt://spark/files/spark-defaults-conf.jinja
         - salt://spark/files/spark-defaults.conf.template
@@ -26,6 +28,8 @@ include:
     - user: root
     - group: root
     - mode: 644
+    - force: true
+    - replace: true
     - context:
         filetype: master
 
@@ -36,6 +40,8 @@ include:
     - template: jinja
     - user: root
     - group: root
+    - force: true
+    - replace: true
     - mode: 644
     - context:
         user: {{ spark.user }}
