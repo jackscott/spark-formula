@@ -45,6 +45,7 @@ spark-extract-archive:
     - name: {{ spark.prefix }}
     - source:
         - file:///tmp/{{ archive_name }}
+        - salt://{{ archive_name }}
         - {{ spark.archive_url }}
     - user: {{ spark.user }}
     - group: {{ spark.user }}
