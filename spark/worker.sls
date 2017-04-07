@@ -11,6 +11,7 @@
     - force: true
     - replace: true
     - source:
+        - salt://spark/files/spark-defaults.conf
         - salt://spark/files/spark-defaults-conf.jinja
         - salt://spark/files/spark-defaults.conf.template
         - {{ spark.real_root }}/conf/spark-defaults.conf.template
