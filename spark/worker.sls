@@ -1,6 +1,10 @@
 {% from "spark/map.jinja" import spark with context %}
 
-{% if spark.worker_role in grains.roles %}
+  
+include:
+  - spark
+
+
 {{ spark.worker_service }}-properties-file:
   file.managed:
     - name: {{ "%s/spark-defaults.conf"|format(spark.config_dir) }}
@@ -53,7 +57,43 @@
     - name: {{ spark.worker_service }}
     - enable: true
     - init_delay: 10
-    - watch:
-        - file: {{ spark.worker_role }}-service
-        - file: {{ spark.worker_role }}-service-defaults
-{% endif %}
+
+spark-update-configs:
+  file.managed:
+    - name: {{ spark.config_dir }}/spark-env.sh
+    - source:
+        - salt://spark/files/spark-env_sh.jinja
+        # fallback to the default (empty) from the distribution
+        - file://{{ spark.real_root }}/conf/spark-env.sh.template
+    - template: jinja
+    - user: {{ spark.user }}
+    - group: {{ spark.user }}
+    - mode: 644
+    - context:
+        is_worker: true
+    - watch_in:
+        - service: {{ spark.worker_service }}-enabled
+        
+spark-logging:
+  file.managed:
+    - name: {{ spark.config_dir }}/log4j.properties
+    - source:
+        - salt://spark/files/log4j-properties.jinja
+        - file://{{ spark.real_root }}/conf/log4j.properties.template
+    - template: jinja
+    - user: {{ spark.user }}
+    - group: {{ spark.user }}
+    - mode: 644
+
+
+spark-defaults:
+  file.managed:
+    - name: {{ spark.config_dir }}/spark-defaults.conf
+    - template: jinja
+    - source: salt://spark/files/spark-defaults.conf.jinja
+    - user: {{ spark.user }}
+    - group: {{ spark.user }}
+    - mode: 644
+    - watch_in:
+        - service: {{ spark.worker_service }}-enabled
+          

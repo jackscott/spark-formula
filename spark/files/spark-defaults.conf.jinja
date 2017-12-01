@@ -1,0 +1,7 @@
+# managed by Saltstack any changs will be overwritten
+{% from "spark/map.jinja" import spark, config with context %}
+{% from "spark/macros.sls" import config_format with context %}
+spark.master={{ 'spark://%s:%s'|format(spark.master_host, spark.master_port) }}
+{% for section, data in config.items() -%}
+{{ config_format('spark.%s'|format(section), data) }}
+{% endfor %}

@@ -6,63 +6,118 @@ default:
   prefix: /usr/local/lib
   config_dir: /etc/spark
   log_dir: /var/log/spark
-  work_dir: /tmp/spark
+
+  # change this to override the default SPARK_HOME/work 
+  work_dir: ~
   pid_dir: /var/run/spark
   niceness: 0
-
-  version: "2.1.0"
-  hadoop_version: "2.7"
-  with_hadoop: true
-  archive_url: "http://apache.cs.utah.edu/spark/spark-%(version)s"
-  archive_type: "tgz"
-  # used for minion targeting and master discovery
-  worker_role: 'spark-worker'
-  master_role: 'spark-master'
   
-  master_host: ~
+  # controls the version of spark to be installed
+  version: "2.2.0"
+  # used to build the artifact filename
+  hadoop_version: "2.7"
+  # set to false if the "without-hadoop" version is desired
+  with_hadoop: true
+  # 
+  archive_type: "tgz"
+
+  # use a mirror to fetch the scala artifact
+  archive_url_base: http://download.nextag.com/apache/spark
+  # use the official servers to pull in Apache GPG keys and artifact signatures
+  archive_hash_url_base: https://archive.apache.org/dist/spark
+
+  # tells slaves where to look for a master
+  master_host: 127.0.0.1
   master_port: 7077
   master_ui_port: 8080
-  master_opts: []
-  local_dirs: /tmp/spark/scratch
-  
-  worker_cores: 0 # all cores
+
+  # params used when launching daemons
+  # SPARK_WORKER_CORES - how many cores on the machine should spark consume. (Default: 0 is unlimited)
+  worker_cores: 0
+
+  # SPARK_WORKER_MEMORY - amount of heap allocated to each worker
   worker_memory: 2g
-  worker_instances: 1
+
+  # SPARK_WORKER_WEBUI_PORT
   worker_webui_port: 8081
-  worker_dir: ~
-  worker_opts: []
+  
+  # SPARK_WORKER_OPTS - map of options to be set in the worker environments, flattened out to '-Dkey=val -Dfoo=bar'
+  worker_opts: {}
+
+  # SPARK_DAEMON_MEMORY - memory to allocate to the master/worker daemons
   daemon_memory: 1g
+
+  # SPARK_DAEMON_JAVA_OPTS - list of options to be set in the master/worker environments
   daemon_java_opts: []
+  # theese will be flattened out into -Dsomething=cool
+  # daemon_java_opts:
+  #   - something:cool
+
+  # SPARK_PUBLIC_DNS - set this to override the machine's FQDN
   public_dns: ~
+  
 
   init_system: ~
   init_scripts: ~
   init_overrides: ~
-  
+
+  package_deps: []
+
+# Debian specific overrides to the above map
 Debian:
   init_system: systemd
   init_scripts: /etc/systemd/system
   init_overrides: /etc/default
+  package_deps:
+    - scala
+    - git
   java_deps:
     - default-jre
     - default-jdk
+# RHEL overrides
 RedHat:
   init_system: systemd
   init_scripts: /usr/lib/systemd/system
   init_overrides: /etc/systemd/system
+  package_deps:
+    - scala
+    - git
   java_deps:
     - java-1.8.0-openjdk
     - java-1.8.0-openjdk-devel
 {% endload %}
 
-{% load_yaml as versions %}
-with_hadoop:
-  "2.1.0":
-    name: "spark-%(version)s-bin-hadoop%(hadoop_version)s"
-    hash: "sha256=0834c775f38473f67cb122e0ec21074f800ced50c1ff1b9e37e222a0069dc5c7"
-without_hadoop:
-  "2.1.0":
-    name: "spark-%(version)s-bin-without-hadoop"
-    hash: "sha256=3ca4ecb0eb9a00de5099cc2564ed957433a2d15d9d645a60470324621853c5ae"
-{% endload %}
 
+# These values are converted into java properties and written to /etc/spark/spark-defaults.conf
+{% load_yaml as config %}
+app:
+  name: foobar
+
+driver:
+  cores: 1
+  maxResultSize: 1g
+  memory: 1g
+  extraClassPath: ~
+  extraJavaOptions: ~
+    
+local:
+  dir: /tmp/spark/scratch
+
+executor:
+  extraClassPath: ~
+  extraJavaOptions: ~
+  extraLibraryPath: ~
+  # names can be flattened too
+  'logs.rolling.maxSize': ~
+  
+shuffle:
+  compress: true
+  'file.buffer': 32k
+  'io.preferDirectBufs': true
+
+ui:
+  port: 4040
+  retainedJobs: 1000
+  retainedStages: 1000
+  
+{% endload %}
