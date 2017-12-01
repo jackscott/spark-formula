@@ -1,0 +1,33 @@
+sudo: required
+services:
+  - docker
+
+env:
+  global:
+    - KITCHEN_LOCAL_YAML=.kitchen-docker.yml
+    - LC_ALL="en_US.UTF-8"
+    - LC_CTYPE="en_US.UTF-8"
+  
+# before_install:
+#   - sudo apt-get update
+#   - curl -L http://bootstrap.saltstack.org | sudo sh 
+
+install:
+  - pip install PyYAML
+  - pip install virtualenv
+  - |
+    cat <<EOF | tee  Gemfile
+    source 'https://rubygems.org'
+    gem 'rake'
+    gem 'test-kitchen'
+    gem 'kitchen-docker'
+    gem 'kitchen-inspec'
+    gem 'inspec'
+    gem 'kitchen-salt', :git => 'https://github.com/salt-formulas/kitchen-salt.git'
+
+before_script:
+  - bundle install
+
+
+script:
+  -  bundle exec kitchen test 

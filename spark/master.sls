@@ -2,9 +2,7 @@
 
 include:
   - spark
-  - spark.debug
   
-{% if spark.master_role in grains.roles %}
 {% with srv = spark.master_service %}
 {{ srv }}-properties-file:
   file.managed:
@@ -58,5 +56,38 @@ include:
     - watch:
         - file: {{ srv }}-service
         - file: {{ srv }}-defaults
+
+{{ srv }}-spark-env.sh:
+  file.managed:
+    - name: {{ spark.config_dir }}/spark-env.sh
+    - source:
+        - salt://spark/files/spark-env_sh.jinja
+        # fallback to the default (empty) from the distribution
+        - file://{{ spark.real_root }}/conf/spark-env.sh.template
+    - template: jinja
+    - user: {{ spark.user }}
+    - group: {{ spark.user }}
+    - mode: 644
+
+{{ srv }}-logging:
+  file.managed:
+    - name: {{ spark.config_dir }}/log4j.properties
+    - source:
+        - salt://spark/files/log4j-properties.jinja
+        - file://{{ spark.real_root }}/conf/log4j.properties.template
+    - template: jinja
+    - user: {{ spark.user }}
+    - group: {{ spark.user }}
+    - mode: 644
+
+
+{{ srv }}-defaults.conf:
+  file.managed:
+    - name: {{ spark.config_dir }}/spark-defaults.conf
+    - template: jinja
+    - source: salt://spark/files/spark-defaults.conf.jinja
+    - user: {{ spark.user }}
+    - group: {{ spark.user }}
+    - mode: 644
+
 {% endwith %}
-{% endif %}

@@ -1,12 +1,19 @@
 ---
 driver:
   name: vagrant
-  network:
-    - ["private_network", { ip: "192.168.55.55"}]
-
+  
+verifier:
+  name: inspec
+  sudo: true
+        
 provisioner:
   name: salt_solo
+  log_level: debug
   omnibus_cachier: true
+  salt_install: bootstrap
+  salt_version: latest
+  salt_minion_id: kitchen-test-spark
+  
   formula: spark
   pillars-from-files:
     spark.sls: pillar.example
@@ -15,19 +22,68 @@ provisioner:
       base:
         "*":
           - spark
-  grains:
-    roles:
-      - spark-worker
-      - spark-master
   state_top:
     base:
       "*":
         - spark
         - spark.debug
-        - spark.master
-        - spark.worker
+
 platforms:
-  - name: ubuntu-16.04
+  - name: ubuntu
+    driver:
+      box: bento/ubuntu-17.04
+
 
 suites:
   - name: default
+    verifier:
+      inspec_tests:
+        - name: spark-default
+          path: test/integration/default
+      controls:
+        - spark-baseline
+        
+  - name: worker
+    verifier:
+      inspec_tests:
+        - name: spark-worker
+          path: test/integration/default
+      controls:
+        - spark-baseline
+        - spark-defaults
+        - sw-01
+        - sw-02
+        - sw-03
+        - sw-04
+    provisioner:
+      grains:
+        roles:
+          - spark-worker
+
+      state_top:
+        base:
+          '*':
+            - spark
+            - spark.debug
+            - spark.worker
+      
+  - name: master
+    verifier:
+      inspec_tests:
+        - name: spark-master
+          path: test/integration/default
+      controls:
+        - spark-baseline
+        - spark-master-service
+        - spark-master-ports
+            
+    provisioner:
+      grains:
+        roles:
+          - spark-master
+      state_top:
+        base:
+          '*':
+            - spark
+            - spark.debug
+            - spark.master

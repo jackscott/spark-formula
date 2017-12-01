@@ -18,14 +18,39 @@ Available states
 
 ``spark``
 ------------
-Install spark!
+Install Apache Spark
+
+``spark.worker``
+------------
+Installs and sets up a stand-alone spark worker/slave server
+
+``spark.master``
+------------
+Installs and sets up a stand-alone spark master server.
 
 ``spark.debug``
 -----------------
-Helpful for debugging, dumps the jinja map to a text file
+Helpful for debugging, dumps the jinja map to a text file in /tmp
 
 
+Usage
+=======
 
+If all you need is the Spark environment, not a worker or master, add `spark` or `spark.env` to the topfile; Otherwise, add `spark.master` or `spark.worker` (or both!) to the appropriate include or topfile declaration.
+
+.. code-block::
+   # example top.sls
+   '*':
+     - spark
+       
+   'G@roles:spark-worker':
+     - spark.worker
+
+   'G@roles:spark-master':
+     - spark.master
+
+   
+Overriding the pillar is 
 Testing
 =========
 
