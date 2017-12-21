@@ -91,8 +91,8 @@ spark-setup-config:
     - user: {{ spark.user }}
     - group: {{ spark.user }}
     - mode: 755
-    - unless:
-        - test -d {{ spark.config_dir }}
+    - onlyif:
+        - ! test -d {{ spark.config_dir }}
     - require:
         - archive: spark-extract-archive
         - alternatives: spark-update-path
