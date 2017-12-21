@@ -15,18 +15,19 @@ spark:
       cores: 1
       maxResultSize: 1g
       memory: 1g
-      extraClassPath: ~
-      extraJavaOptions: ~
-      
+      extraClassPath: '/opt/spark/jars'
+      extraJavaOptions:
+        - 'some.java.property': 'some value'
     local:
       dir: /tmp/not-so-awesome
 
     executor:
-      extraClassPath: ~
-      extraJavaOptions: ~
-      extraLibraryPath: ~
+      extraClassPath: '/opt/spark/jars:/usr/local'
+      # extraJavaOptions should be a map of scalar values
+      extraJavaOptions:
+        - 'another.java.property': 'foobar'
       # names can be flattened too
-      'logs.rolling.maxSize': ~
+      'logs.rolling.maxSize': 100m
       
 
     shuffle:

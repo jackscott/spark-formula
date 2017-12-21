@@ -1,8 +1,6 @@
 {% from "spark/defaults.yaml" import lookup_map as lmap, config as cmap  with context %}
 
-
-
-{% set config = salt['grains.get']('spark:config', cmap) %}
+{% set config = salt['pillar.get']('spark:config', cmap, merge=True) %}
 
 
 {% set spark = salt['grains.filter_by'](lmap, merge=salt['pillar.get']('spark:lookup', salt['grains.get']('spark:lookup', {}), merge=True), base='default') %}

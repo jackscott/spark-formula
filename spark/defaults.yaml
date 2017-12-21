@@ -1,11 +1,15 @@
 {% load_yaml as lookup_map %}
 default:
+  # used to control the names of SystemD services being created
   worker_service: 'spark-worker'
   master_service: 'spark-master'
+  
   user: spark
   prefix: /usr/local/lib
-  config_dir: /etc/spark
+  config_dir: /usr/local/lib/spark/conf
   log_dir: /var/log/spark
+  java_home: ~
+
 
   # change this to override the default SPARK_HOME/work 
   work_dir: ~
@@ -18,6 +22,8 @@ default:
   hadoop_version: "2.7"
   # set to false if the "without-hadoop" version is desired
   with_hadoop: true
+  # if without-hadoop == False, hadoop_home should also be set
+  hadoop_home: ~
   # 
   archive_type: "tgz"
 
@@ -71,9 +77,12 @@ Debian:
   package_deps:
     - scala
     - git
+    - gpgv2
+    - python-gnupg
   java_deps:
     - default-jre
-    - default-jdk
+  java_home: /usr/lib/jvm/java-8-openjdk-amd64/jre
+  
 # RHEL overrides
 RedHat:
   init_system: systemd
@@ -85,6 +94,7 @@ RedHat:
   java_deps:
     - java-1.8.0-openjdk
     - java-1.8.0-openjdk-devel
+  java_home: /usr/lib/jvm/jre-1.8.0-openjdk.x86_64
 {% endload %}
 
 
@@ -98,14 +108,14 @@ driver:
   maxResultSize: 1g
   memory: 1g
   extraClassPath: ~
-  extraJavaOptions: ~
+  extraJavaOptions: []
     
 local:
   dir: /tmp/spark/scratch
 
 executor:
   extraClassPath: ~
-  extraJavaOptions: ~
+  extraJavaOptions: []
   extraLibraryPath: ~
   # names can be flattened too
   'logs.rolling.maxSize': ~

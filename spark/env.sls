@@ -3,7 +3,10 @@
 {% set artifact = '/tmp/%s'|format(archive_name) %}
 {% set pub_key = '/tmp/spark-pub-keys.asc' %}
 
-spark-env-setup:
+{% set pkg_deps = spark.get('package_deps', [])  %}
+{% set java_deps = spark.get('java_deps', [])  %}
+
+bootstrap-spark:
   group.present:
     - name: {{ spark.user }}
   user.present:
@@ -13,32 +16,28 @@ spark-env-setup:
     - gid: {{ spark.user }}
     - system: True
   pkg.installed:
-    - pkgs:
-        - default-jre
-    - unless:
-        - which java
+    - pkgs: {{ pkg_deps | json }}
   cmd.run:
     - name: |
         curl -s https://archive.apache.org/dist/spark/KEYS -o {{ pub_key }}
     - require:
-        - pkg: spark-env-setup
-        - user: spark-env-setup
+        - pkg: bootstrap-spark
+        - user: bootstrap-spark
 
-install-gpg:
-  pkg.installed:
-    - pkgs:
-        - gpg
-        - python-gnupg
-    - require:
-        - cmd: spark-env-setup
           
 {{ '%s.asc'|format(artifact) }}:  
   file.managed:
     - name: {{ '%s.asc'|format(artifact) }}
     - source: {{ spark.archive_hash_url }}
     - skip_verify: true
-      
-import-apache-keyes:
+
+check-for-java:
+  pkg.installed:
+    - pkgs: {{ java_deps | json }}
+    - unless:
+        - which java
+    
+import-apache-keys:
   module.run:
     - name: gpg.import_key
     - kwargs:
@@ -46,7 +45,6 @@ import-apache-keyes:
         filename: {{ pub_key }}
     - watch_in:
       - cmd: spark-cache-archive
-      
 
 spark-cache-archive:
   file.managed:
@@ -54,7 +52,7 @@ spark-cache-archive:
     - source: {{ spark.archive_url }}
     - skip_verify: true
     - unless:
-        - test -d {{ spark.real_root }}
+        - test -f {{ artifact }}
 
   cmd.run:
     - name: |
@@ -67,7 +65,6 @@ spark-extract-archive:
   file.directory:
     - names:
         - {{ spark.log_dir }}
-        - {{ spark.config_dir }}
         - {{ spark.work_dir }}
         - {{ spark.pid_dir }}
     - user: {{ spark.user }}
@@ -83,12 +80,23 @@ spark-extract-archive:
         - {{ spark.archive_url }}
     - user: {{ spark.user }}
     - group: {{ spark.user }}
-    - if_missing: {{ spark.alt_root }}
+    - if_missing: {{ spark.real_root }}
     - archive_format: tar
     - require:
         - cmd: spark-cache-archive
-          
 
+spark-setup-config:
+  file.directory:
+    - name: {{ spark.config_dir }}
+    - user: {{ spark.user }}
+    - group: {{ spark.user }}
+    - mode: 755
+    - unless:
+        - test -d {{ spark.config_dir }}
+    - require:
+        - archive: spark-extract-archive
+        - alternatives: spark-update-path
+          
 spark-update-path:
   alternatives.install:
     - name: spark-home-link
@@ -96,8 +104,8 @@ spark-update-path:
     - path: {{ spark.real_root }}
     - priority: 999
     - require:
-        - archive: spark-extract-archive
-
+        - file: spark-setup-config
+          
 spark-setup-profile:
   file.managed:
     - name: /etc/profile.d/spark.sh
@@ -107,5 +115,50 @@ spark-setup-profile:
     - group: root
     - mode: 644
 
-      
+spark-env:
+  file.managed:
+    - name: {{ spark.config_dir }}/spark-env.sh
+    - source:
+        - salt://spark/files/spark-env_sh.jinja
+        # fallback to the default (empty) from the distribution
+        - file://{{ spark.real_root }}/conf/spark-env.sh.template
+    - template: jinja
+    - user: {{ spark.user }}
+    - group: {{ spark.user }}
+    - mode: 755
+    - require:
+        - file: spark-setup-config
+    - context:
+        is_worker: true
+
+spark-logging:
+  file.managed:
+    - name: {{ spark.config_dir }}/log4j.properties
+    - source:
+        - salt://spark/files/log4j-properties.jinja
+        - file://{{ spark.real_root }}/conf/log4j.properties.template
+    - template: jinja
+    - user: {{ spark.user }}
+    - group: {{ spark.user }}
+    - mode: 644
+    - require:
+        - file: spark-setup-config
+
+spark-defaults:
+  file.managed:
+    - name: {{ "%s/spark-defaults.conf"|format(spark.config_dir) }}
+    - template: jinja
+    - user: {{ spark.user }}
+    - group: {{ spark.user }}
+    - mode: 644
+    - force: true
+    - replace: true
+    - require:
+        - file: spark-setup-config
+          
+    - source:
+        - salt://spark/files/spark-defaults.conf.jinja
+        - salt://spark/files/spark-defaults.conf.template
+        - {{ spark.real_root }}/conf/spark-defaults.conf.template
+
 {% endwith %}

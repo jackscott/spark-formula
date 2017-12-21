@@ -84,4 +84,9 @@ Cheat Sheet
    # alias for running  (destroy + converge + verify + destroy)
    kitchen test
 
-  
+
+   
+TODO
+------
+worker.sls and master.sls are identical, maybe it's time to combine them into a `service.sls` and interrogate *salt['pillar.get']('grains', [])* using `spark:lookup:worker_service` and `spark:lookup:master_service` to determine *which* service the state declarations should operate on.
+
