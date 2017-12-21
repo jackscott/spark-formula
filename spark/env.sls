@@ -104,8 +104,8 @@ spark-update-path:
     - path: {{ spark.real_root }}
     - priority: 999
     - require:
-        - file: spark-setup-config
-          
+        - archive: spark-extract-archive
+
 spark-setup-profile:
   file.managed:
     - name: /etc/profile.d/spark.sh
