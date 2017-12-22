@@ -91,8 +91,8 @@ spark-setup-config:
     - user: {{ spark.user }}
     - group: {{ spark.user }}
     - mode: 755
-    - unless:
-        - test -d {{ spark.config_dir }}
+    - onlyif:
+        - ! test -d {{ spark.config_dir }}
     - require:
         - archive: spark-extract-archive
         - alternatives: spark-update-path
@@ -104,8 +104,8 @@ spark-update-path:
     - path: {{ spark.real_root }}
     - priority: 999
     - require:
-        - file: spark-setup-config
-          
+        - archive: spark-extract-archive
+
 spark-setup-profile:
   file.managed:
     - name: /etc/profile.d/spark.sh
