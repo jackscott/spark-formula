@@ -6,7 +6,7 @@ if [ ":$PATH:" != *":{{ spark.alt_root }}:"* ]; then
 fi
 
 export SPARK_HOME={{ spark.alt_root }}
-export SPARK_CONF_DIR={{ spark.conpfig_dir }}
+export SPARK_CONF_DIR={{ spark.config_dir }}
 export SPARK_MASTER_HOST={{ spark.master_host }}
 export SPARK_MASTER_PORT={{ spark.master_port }}
 
