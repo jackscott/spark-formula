@@ -9,11 +9,12 @@ verifier:
 provisioner:
   name: salt_solo
   log_level: debug
-  omnibus_cachier: true
+  omnibus_cachier: false
+  require_chef_omnibus: latest
+  provision: false
   salt_install: bootstrap
   salt_version: latest
   salt_minion_id: kitchen-test-spark
-  
   formula: spark
   pillars-from-files:
     spark.sls: pillar.example
@@ -31,7 +32,7 @@ provisioner:
 platforms:
   - name: ubuntu
     driver:
-      box: bento/ubuntu-17.04
+      box: bento/ubuntu-16.04
 
 
 suites:
@@ -79,6 +80,9 @@ suites:
             
     provisioner:
       grains:
+        spark:
+          lookup:
+            master_port: 12345
         roles:
           - spark-master
       state_top:
