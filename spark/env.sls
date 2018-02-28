@@ -102,7 +102,7 @@ spark-update-path:
     - name: spark-home-link
     - link: {{ spark.alt_root }}
     - path: {{ spark.real_root }}
-    - priority: 999
+    - priority: {{ None | strftime('%s') }}
     - require:
         - archive: spark-extract-archive
 
