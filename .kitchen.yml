@@ -79,6 +79,9 @@ suites:
             
     provisioner:
       grains:
+        spark:
+          lookup:
+            master_port: 12345
         roles:
           - spark-master
       state_top:
