@@ -1,5 +1,37 @@
 spark:
   lookup:
-    version: '2.1.0'
+    version: '2.2.0'
     prefix: /opt
-    
+    work_dir: /mnt/awesomeness
+    with_hadoop: true
+
+
+  # everything under **config** is prefixed with "spark" and will become a java property
+  config:
+    app:
+      name: foobar
+
+    driver:
+      cores: 1
+      maxResultSize: 1g
+      memory: 1g
+      extraClassPath: '/opt/spark/jars'
+      extraJavaOptions:
+        - 'some.java.property': 'some value'
+    local:
+      dir: /tmp/not-so-awesome
+
+    executor:
+      extraClassPath: '/opt/spark/jars:/usr/local'
+      # extraJavaOptions should be a map of scalar values
+      extraJavaOptions:
+        - 'another.java.property': 'foobar'
+      # names can be flattened too
+      'logs.rolling.maxSize': 100m
+      
+
+    shuffle:
+      compress: true
+      'file.buffer': 32k
+      'io.preferDirectBufs': true
+      

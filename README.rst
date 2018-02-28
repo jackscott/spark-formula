@@ -18,14 +18,39 @@ Available states
 
 ``spark``
 ------------
-Install spark!
+Install Apache Spark
+
+``spark.worker``
+------------
+Installs and sets up a stand-alone spark worker/slave server
+
+``spark.master``
+------------
+Installs and sets up a stand-alone spark master server.
 
 ``spark.debug``
 -----------------
-Helpful for debugging, dumps the jinja map to a text file
+Helpful for debugging, dumps the jinja map to a text file in /tmp
 
 
+Usage
+=======
 
+If all you need is the Spark environment, not a worker or master, add `spark` or `spark.env` to the topfile; Otherwise, add `spark.master` or `spark.worker` (or both!) to the appropriate include or topfile declaration.
+
+.. code-block::
+   # example top.sls
+   '*':
+     - spark
+       
+   'G@roles:spark-worker':
+     - spark.worker
+
+   'G@roles:spark-master':
+     - spark.master
+
+   
+Overriding the pillar is 
 Testing
 =========
 
@@ -59,4 +84,9 @@ Cheat Sheet
    # alias for running  (destroy + converge + verify + destroy)
    kitchen test
 
-  
+
+   
+TODO
+------
+worker.sls and master.sls are identical, maybe it's time to combine them into a `service.sls` and interrogate *salt['pillar.get']('grains', [])* using `spark:lookup:worker_service` and `spark:lookup:master_service` to determine *which* service the state declarations should operate on.
+

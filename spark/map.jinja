@@ -1,37 +1,33 @@
-{% from "spark/defaults.yaml" import lookup_map as lmap,versions as vmap  with context %}
+{% from "spark/defaults.yaml" import lookup_map as lmap, config as cmap  with context %}
+
+{% set config = salt['pillar.get']('spark:config', cmap, merge=True) %}
+
 
 {% set spark = salt['grains.filter_by'](lmap, merge=salt['pillar.get']('spark:lookup', salt['grains.get']('spark:lookup', {}), merge=True), base='default') %}
 
 {% with %}
 
 {% if spark.with_hadoop == True %}
-  {% set versions = vmap["with_hadoop"] %}
-  {% set _name = versions[spark.version]["name"] %}
-  {% set _hash = versions[spark.version]["hash"]%}
+{% set archive_name = "spark-%s-bin-hadoop%s"|format(spark.version, spark.hadoop_version)  %}
 {% else %}
-  {% set versions = vmap["without_hadoop"] %}
-  {% set _name = versions[spark.version]["name"] %}
-  {% set _hash = versions[spark.version]["hash"]%}  
+{% set archive_name = "spark-%s-bin-without-hadoop"|format(spark.version) %}
 {% endif %}
 
-{% if versions is defined and spark.version in versions.keys() %}
-  {% set archive_name = versions[spark.version]['name'] %}
-{% else %}
-  {% set archive_name = "spark-%s-bin-without-hadoop"|format(spark.version) %}
-  {% set _hash = "" %}
-{% endif %}
-
-{% set archive_name = archive_name % spark %}
-{% set url = spark.archive_url % spark %}
+{% set url = '%s/spark-%s'|format(spark.archive_url_base, spark.version) %}
+{% set hash_url = "%s/spark-%s/%s.%s.asc"|format(spark.archive_hash_url_base,spark.version, archive_name, spark.archive_type )%}
 {% set real_root = "%s/%s"|format(spark.prefix, archive_name) %}
+
 
 {% do spark.update({
   'real_root': real_root,
   'alt_root': "%s/spark"|format(spark.prefix),
   'bin_dir': '%s/bin'|format(real_root),
+  'config_dir': '%s/conf'|format(real_root),
   "archive_name": archive_name,
   "archive_url": "%s/%s.%s"|format(url, archive_name, spark.archive_type),
-  "archive_hash": _hash,
-  "master_uri": "spark://%s:%s"|format(spark.master_host, spark.master_port)
+  "archive_hash_url": hash_url,
+  "master_uri": "spark://%s:%s"|format(spark.master_host, spark.master_port),
+  'config': config,
+  'work_dir': spark.get('work_dir', '%s/work'|format(real_root))
 }) %}
 {% endwith %}

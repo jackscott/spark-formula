@@ -1,7 +1,7 @@
 name: spark
 os: RedHat, Debian, Ubuntu, Suse, FreeBSD
 os_family: RedHat, Debian, Suse, FreeBSD
-version: 201702
-release: 1
+version: 201712
+release: 4
 summary: Formula for installing Apache Spark
 description: Formula for installing Apache Spark
