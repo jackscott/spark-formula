@@ -89,9 +89,9 @@ control 'spark-defaults' do
     it { should be_writable.by('owner') }
     it { should_not be_writable.by('group') }
     it { should_not be_writable.by('other') }    
-    its('content') { should match /spark\.local\.dir=\/tmp\/not-so-awesome/ }
-    its('content') { should match /spark\.executor\.extraClassPath=\/opt\/spark\/jars:\/usr\/local/ }
-    its('content') { should match /spark\.driver\.memory=1g/ }
+    its('content') { should match /spark\.local\.dir\s+\/tmp\/not-so-awesome/ }
+    its('content') { should match /spark\.executor\.extraClassPath\s+\/opt\/spark\/jars:\/usr\/local/ }
+    its('content') { should match /spark\.driver\.memory\s+1g/ }
   end
 
   describe file('/opt/spark/conf/spark-env.sh') do
