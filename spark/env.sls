@@ -24,7 +24,6 @@ bootstrap-spark:
   file.managed:
     - source:
       - salt://spark/files/spark-pub-keys.asc
-      - file:///tmp/spark-pub-keys.asc
       - https://www.apache.org/dist/spark/KEYS
     - skip_verify: true
     - user: root
