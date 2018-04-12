@@ -1,3 +1,4 @@
+
 language: ruby
 sudo: required
 cache: bundler
@@ -10,3 +11,4 @@ script:
 env:
   matrix:
     - DISTRIB=ubuntu:xenial/16.04
+
