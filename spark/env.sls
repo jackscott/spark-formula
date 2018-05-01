@@ -99,8 +99,6 @@ spark-extract-archive:
         - file://{{ artifact }}
         - salt://{{ archive_name }}
         - {{ spark.archive_url }}
-    - user: {{ spark.user }}
-    - group: {{ spark.user }}
     - trim_output: true
     - if_missing: {{ spark.real_root }}
     - archive_format: tar
